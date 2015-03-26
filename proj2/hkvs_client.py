@@ -5,7 +5,7 @@ __author__ = 'andrepeniche 44312'
 
 import sys
 
-from proj2.hkvs_stub import remoteHKVS
+from hkvs_stub import remoteHKVS
 
 
 HOST = sys.argv[1]
