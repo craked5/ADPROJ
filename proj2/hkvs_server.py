@@ -25,7 +25,7 @@ def recall(s, size):
     while size > 0:
         frag = s.recv(size)
         size -= len(frag)
-    msg += frag
+        msg += frag
     return msg
 
 while True:
@@ -37,7 +37,7 @@ while True:
             print 'ligado a %s', addr
             SocketList.append(conn_sock)
         else:
-            msg = recall(sckt,1800)
+            msg = sckt.recv(1800)
             if msg:
                 temp = enviar.processMessage(msg)
                 sckt.sendall(temp)
