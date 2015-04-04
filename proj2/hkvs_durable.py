@@ -4,38 +4,30 @@ __author__ = 'nunosilva 44285'
 __author__ = 'andrepeniche 44312'
 
 from hkvs_impl import HKVS
-import sys as s
-import time
+import time as t
 import os
 
 class DurableHKVS:
 
-    def __init__(self):
+    def __init__(self,max_count):
+        self.path = '/Users/nunosilva/Desktop/dhkvs-log-atual.txt'
         self.hkvs = HKVS()
         self.cont = 0
+        self.max_count = max_count
         try:
-            self.f = open('dhkvs-log-atual.txt', 'a')
-        except:
-            IOError
-        print self.f.mode
-        print self.f.name
-
-    def copy(self, atual_arg, destino_arg):
-        atual = open(atual_arg, 'r')
-        destino = open(destino_arg, 'w')
-        reader = atual.read()
-        destino.write(reader)
-        atual.close()
-        destino.close()
+            self.f = open(self.path, 'a')
+        except IOError:
+            print "Error opening the file"
 
     def logMessage(self,comando):
-        if self.cont > 100:
+        if self.cont == self.max_count:
             try:
-                self.copy('dhkvs-log-atual.txt', 'dhkvs-log-'+int(time.time())+'.txt')
-                self.f = open('dhkvs-log-atual.txt', 'a')
+                time_created = t.strftime('%H:%M:%S', t.gmtime())
+                os.rename(self.path, '/Users/nunosilva/Desktop/dhkvs-log-'+ time_created +'.txt' )
+                self.f = open(self.path, 'a')
                 self.cont = 0
             except IOError:
-                print "nao foi possivel guardar o ficheiro"
+                print "Error writing to file"
         try:
             self.f.write(comando)
             self.f.flush()
@@ -47,26 +39,35 @@ class DurableHKVS:
 
     def create(self, path, name):
         r = self.hkvs.create(path,name)
-        self.logMessage('create em ' +path+ r +'\n')
-
-        print self.f
-        print self.cont
-        return r
+        temp = self.logMessage('create ' +path+ ' ' + name+ ' ' +r +'\n')
+        if temp == True:
+            return r
+        else:
+            print "Error saving to file"
 
     def put(self, path, name, value):
         r = self.hkvs.put(path,name,value)
-        self.logMessage('put ' + path + ' ' + name + ' ' + value + r +'\n')
-        return r
+        temp = self.logMessage('put ' + path + ' ' + name + ' ' + value + ' ' + r +'\n')
+        if temp == True:
+            return r
+        else:
+            print "Error saving to file"
 
     def cas(self,path, name, cur_val, new_val):
         r = self.hkvs.put(path,name,cur_val,new_val)
-        self.logMessage('cas ' + path + ' ' + name + ' ' + cur_val + ' ' + new_val + r +'\n')
-        return r
+        temp = self.logMessage('cas ' + path + ' ' + name + ' ' + cur_val + ' ' + new_val + ' ' +r +'\n')
+        if temp == True:
+            return r
+        else:
+            print "Error saving to file"
 
     def remove(self, path):
         r = self.hkvs.remove(path)
-        self.logMessage('remove em ' +path+ r + '\n')
-        return r
+        temp = self.logMessage('remove ' +path+ ' ' +r + '\n')
+        if temp == True:
+            return r
+        else:
+            print "Error saving to file"
 
     def get(self, path):
         return self.hkvs.get()

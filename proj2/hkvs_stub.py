@@ -26,7 +26,7 @@ class remoteHKVS:
 
     def enviar(self,env):
         env_p = pickle.dumps(env, -1)
-        self.conn_sock.sendall(env_p)
+        self.conn_sock.send(env_p)
 
     def create(self, mensagem):
         mensagem[0] = '10'
