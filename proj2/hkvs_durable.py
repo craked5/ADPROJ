@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+__author__ = 'grupo043'
 __author__ = 'nunosilva 44285'
 __author__ = 'andrepeniche 44312'
 
@@ -10,12 +11,11 @@ import os
 class DurableHKVS:
 
     def __init__(self,max_count):
-        self.path = '/Users/nunosilva/Desktop/dhkvs-log-atual.txt'
         self.hkvs = HKVS()
         self.cont = 0
         self.max_count = max_count
         try:
-            self.f = open(self.path, 'a')
+            self.f = open('dhkvs-log-atual.txt', 'a')
         except IOError:
             print "Error opening the file"
 
@@ -23,8 +23,8 @@ class DurableHKVS:
         if self.cont == self.max_count:
             try:
                 time_created = t.strftime('%H:%M:%S', t.gmtime())
-                os.rename(self.path, '/Users/nunosilva/Desktop/dhkvs-log-'+ time_created +'.txt' )
-                self.f = open(self.path, 'a')
+                os.rename('dhkvs-log-atual.txt', 'dhkvs-log-'+ time_created +'.txt' )
+                self.f = open('dhkvs-log-atual.txt', 'a')
                 self.cont = 0
             except IOError:
                 print "Error writing to file"

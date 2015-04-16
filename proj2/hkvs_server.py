@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+__author__ = 'grupo043'
 __author__ = 'nuno silva 44285'
 __author__ = 'andre peniche 44312'
 
