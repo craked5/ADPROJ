@@ -6,6 +6,7 @@ __author__ = 'andrepeniche 44312'
 
 import socket as s
 import pickle
+import sys
 
 class remoteHKVS:
 
@@ -26,8 +27,15 @@ class remoteHKVS:
         return msg_unp
 
     def enviar(self,env):
-        env_p = pickle.dumps(env, -1)
-        self.conn_sock.send(env_p)
+        size_env = sys.getsizeof(env)
+        size_env = str(size_env)
+
+        size_env_pickled = pickle.dumps(size_env,-1)
+        self.conn_sock.send(size_env_pickled+"\n")
+        pickle.loads(self.sock.recv(1024))
+
+        env_pickled = pickle.dumps(env, -1)
+        self.conn_sock.send(env_pickled)
 
     def create(self, mensagem):
         mensagem[0] = '10'
