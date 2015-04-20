@@ -27,14 +27,15 @@ class remoteHKVS:
         return msg_unp
 
     def enviar(self,env):
-        size_env = sys.getsizeof(env)
+        env_pickled = pickle.dumps(env, -1)
+
+        size_env = sys.getsizeof(env_pickled)
         size_env = str(size_env)
 
         size_env_pickled = pickle.dumps(size_env,-1)
         self.conn_sock.send(size_env_pickled+"\n")
-        pickle.loads(self.sock.recv(1024))
+        pickle.loads(self.conn_sock.recv(1024))
 
-        env_pickled = pickle.dumps(env, -1)
         self.conn_sock.send(env_pickled)
 
     def create(self, mensagem):

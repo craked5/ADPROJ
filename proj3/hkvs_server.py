@@ -14,7 +14,7 @@ from hkvs_skel import Skeleton
 
 HOST = ''
 PORT = int (sys.argv[1])
-skel_enviar = Skeleton(5)
+skel_enviar = Skeleton(10)
 sock = s.socket(s.AF_INET, s.SOCK_STREAM)
 sock.setsockopt(s.SOL_SOCKET, s.SO_REUSEADDR, 1)
 sock.bind((HOST, PORT))
@@ -29,6 +29,7 @@ def recvall(s, size):
         frag = s.recv(1024)
         size -= sys.getsizeof(frag)
         msg += frag
+        print msg
     return msg
 
 try:
@@ -40,11 +41,11 @@ try:
                 print 'Connected to %s', addr
                 SocketList.append(conn_sock)
             else:
-                rec_size=sckt.recv(50)
+                rec_size=sckt.recv(512)
                 tamanho=int(p.loads(rec_size))
                 sckt.sendall(p.dumps("SIZEOK",-1))
                 msg=recvall(sckt,tamanho)
-                if msg:
+                if tamanho == sys.getsizeof(msg):
                     temp = skel_enviar.processMessage(msg)
                     sckt.sendall(temp)
                 else:
