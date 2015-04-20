@@ -14,7 +14,7 @@ from hkvs_skel import Skeleton
 
 HOST = ''
 PORT = int (sys.argv[1])
-skel_enviar = Skeleton(10)
+skel_enviar = Skeleton(5)
 sock = s.socket(s.AF_INET, s.SOCK_STREAM)
 sock.setsockopt(s.SOL_SOCKET, s.SO_REUSEADDR, 1)
 sock.bind((HOST, PORT))

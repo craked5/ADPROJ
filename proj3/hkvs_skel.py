@@ -5,7 +5,6 @@ __author__ = 'nunosilva 44285'
 __author__ = 'andrepeniche 44312'
 
 import pickle as p
-
 from hkvs_durable import DurableHKVS
 
 

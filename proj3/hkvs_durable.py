@@ -5,7 +5,6 @@ __author__ = 'nunosilva 44285'
 __author__ = 'andrepeniche 44312'
 
 from hkvs_impl import HKVS
-import time as t
 import os
 import pickle as p
 import os.path
@@ -16,20 +15,20 @@ class DurableHKVS:
         self.cont = 0
         self.max_count = max_count
         try:
-            self.f = open('/Users/nunosilva/Desktop/dhkvs-log.txt', 'a')
+            self.f = open('/Users/nunosilva/Desktop/trabalhopython/dhkvs-log.txt', 'a')
         except IOError:
             print "Error opening the log file"
 
         #se existir of ficheiro dhkvs-ckpt-tmp.p e se sim recupera a hkvs-temp
-        if os.path.isfile('/Users/nunosilva/Desktop/dhkvs-ckpt-tmp.p') is True:
-            self.hkvs = p.loads('/Users/nunosilva/Desktop/“dhkvs-ckpt-tmp.p',-1)
+        if os.path.isfile('/Users/nunosilva/Desktop/trabalhopython/dhkvs-ckpt-tmp.p') is True:
+            self.hkvs = self.checkpointToHkvs('/Users/nunosilva/Desktop/trabalhopython/dhkvs-ckpt-tmp.p')
             self.f.truncate(0)
-            os.rename('/Users/nunosilva/Desktop/“dhkvs-ckpt-tmp.p', '/Users/nunosilva/Desktop/“dhkvs-ckpt.p')
+            os.rename('/Users/nunosilva/Desktop/trabalhopython/dhkvs-ckpt-tmp.p', '/Users/nunosilva/Desktop/trabalhopython/dhkvs-ckpt.p')
         #se nao existir dhkvs-ckpt-tmp.p
-        elif os.path.isfile('/Users/nunosilva/Desktop/dhkvs-ckpt-temp.p') is False:
+        elif os.path.isfile('/Users/nunosilva/Desktop/trabalhopython/dhkvs-ckpt-temp.p') is False:
             #ve se existe o dhkvs-ckpt.p e se sim recupera a hkvs e recupera o log file
-            if os.path.isfile('/Users/nunosilva/Desktop/dhkvs-ckpt.p') is True:
-                self.hkvs = p.loads('/Users/nunosilva/Desktop/“dhkvs-ckpt.p',-1)
+            if os.path.isfile('/Users/nunosilva/Desktop/trabalhopython/dhkvs-ckpt.p') is True:
+                self.hkvs = self.checkpointToHkvs('/Users/nunosilva/Desktop/trabalhopython/dhkvs-ckpt.p')
                 self.logFileRecover()
             #se nao instancia uma hkvs nova e recupera o logfile
             else:
@@ -37,6 +36,8 @@ class DurableHKVS:
                 self.logFileRecover()
 
         print self.hkvs.root
+        print self.cont
+
     #ve se o contador de escrita do log esta igual ao maximo:
         #se sim chama o ckptCreation() para fazer reset e guardar tudo
         #se nao escreve uma linha para o log com a operacao certa
@@ -95,21 +96,21 @@ class DurableHKVS:
 
     #cria um checkpoint e faz reset ao logfile e ao contador de escrita do logfile
     def ckptCreation(self):
-        check = open('/Users/nunosilva/Desktop/“dhkvs-ckpt-tmp.p', 'a')
-        hkvs_pi = p.dumps(self.hkvs,-1)
-        check.write(hkvs_pi)
+        check = open('/Users/nunosilva/Desktop/trabalhopython/dhkvs-ckpt-tmp.p', 'a')
+        p.dump(self.hkvs,check,-1)
         check.flush()
         os.fsync(check.fileno())
         check.close()
         self.f.truncate(0)
-        os.rename('/Users/nunosilva/Desktop/“dhkvs-ckpt-tmp.p', '/Users/nunosilva/Desktop/“dhkvs-ckpt.p')
+        os.rename('/Users/nunosilva/Desktop/trabalhopython/dhkvs-ckpt-tmp.p', '/Users/nunosilva/Desktop/trabalhopython/dhkvs-ckpt.p')
         self.cont = 0
 
+    #faz o recuperamento do log para a nova instancia do servidor
     def logFileRecover(self):
         lista_keywords = ['create','put','cas','remove','get','list']
 
         try:
-            file_temp = open('/Users/nunosilva/Desktop/dhkvs-log.txt', 'r')
+            file_temp = open('/Users/nunosilva/Desktop/trabalhopython/dhkvs-log.txt', 'r')
         except IOError:
             print "Error opening the log file in function logFileRecover"
 
@@ -119,26 +120,30 @@ class DurableHKVS:
         #itera nas linhas e faz a operacao correspondente a primeira palavra em cada linha do ciclo
         #tambem incrementa o contador de linhas no log
         for l in lines:
-            l.split(' ')
+            line_temp = l.split(' ')
             try:
-                if l[0] in lista_keywords:
-                    if l[0] == 'create':
-                        self.hkvs.create(l[1],l[2])
+                if line_temp[0] in lista_keywords:
+                    if line_temp[0] == 'create':
+                        self.hkvs.create(line_temp[1],line_temp[2])
                         self.cont += 1
-                    elif l[0] == 'put':
-                        self.hkvs.put(l[1],l[2],l[3])
+                    elif line_temp[0] == 'put':
+                        self.hkvs.put(line_temp[1],line_temp[2],line_temp[3])
                         self.cont += 1
-                    elif l[0] == 'cas':
-                        self.hkvs.cas(l[1],l[2],l[3],l[4])
+                    elif line_temp[0] == 'cas':
+                        self.hkvs.cas(line_temp[1],line_temp[2],line_temp[3],line_temp[4])
                         self.cont += 1
-                    elif l[0] == 'remove':
-                        self.hkvs.remove(l[1])
+                    elif line_temp[0] == 'remove':
+                        self.hkvs.remove(line_temp[1])
                         self.cont += 1
-                    elif l[0] == 'get':
-                        self.hkvs.get(l[1])
+                    elif line_temp[0] == 'get':
+                        self.hkvs.get(line_temp[1])
                         self.cont += 1
-                    elif l[0] == 'list':
-                        self.hkvs.list(l[1])
+                    elif line_temp[0] == 'list':
+                        self.hkvs.list(line_temp[1])
                         self.cont += 1
             except:
                 print "erro ao ler linha " + str(l)
+
+    def checkpointToHkvs(self, file):
+        hkvs_temp = p.load(open(file, 'r'))
+        return hkvs_temp
