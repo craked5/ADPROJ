@@ -68,5 +68,9 @@ class Skeleton:
             except UnboundLocalError:
                 ret.append('NOK')
 
+        elif(msg_unp[0] == '70'):
+            ret=['71']
+
+
         msg_pronta_enviar = p.dumps(ret,-1)
         return msg_pronta_enviar

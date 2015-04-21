@@ -7,22 +7,26 @@ __author__ = 'andrepeniche 44312'
 import socket as s
 import pickle
 import sys
+import ssl
 
 class remoteHKVS:
 
     def __init__(self):
         self.conn_sock = None
 
-
     def connect(self,host,port):
         self.conn_sock = s.socket(s.AF_INET, s.SOCK_STREAM)
         self.conn_sock.connect((host,port))
 
+        self.sslconn_sock = ssl.wrap_socket(self.conn_sock,
+        ssl_version = ssl.PROTOCOL_TLSv1, cert_reqs = ssl.CERT_REQUIRED,
+        ca_certs = '/Users/nunosilva/Desktop/adcerts/ca.pem', keyfile = '/Users/nunosilva/Desktop/adcerts/client.key', certfile = '/Users/nunosilva/Desktop/adcerts/client.pem')
+
     def disconnect(self):
-        self.conn_sock.close()
+        self.sslconn_sock.close()
 
     def receber(self):
-        msg = self.conn_sock.recv(1024)
+        msg = self.sslconn_sock.recv(1024)
         msg_unp = pickle.loads(msg)
         return msg_unp
 
@@ -33,10 +37,10 @@ class remoteHKVS:
         size_env = str(size_env)
 
         size_env_pickled = pickle.dumps(size_env,-1)
-        self.conn_sock.send(size_env_pickled+"\n")
-        pickle.loads(self.conn_sock.recv(1024))
+        self.sslconn_sock.send(size_env_pickled+"\n")
+        pickle.loads(self.sslconn_sock.recv(1024))
 
-        self.conn_sock.send(env_pickled)
+        self.sslconn_sock.send(env_pickled)
 
     def create(self, mensagem):
         mensagem[0] = '10'

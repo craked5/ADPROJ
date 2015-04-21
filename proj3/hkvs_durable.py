@@ -35,9 +35,6 @@ class DurableHKVS:
                 self.hkvs = HKVS()
                 self.logFileRecover()
 
-        print self.hkvs.root
-        print self.cont
-
     #ve se o contador de escrita do log esta igual ao maximo:
         #se sim chama o ckptCreation() para fazer reset e guardar tudo
         #se nao escreve uma linha para o log com a operacao certa
@@ -65,16 +62,20 @@ class DurableHKVS:
             print "Error saving to file"
 
     def put(self, path, name, value):
-        r = self.hkvs.put(path,name,value)
-        temp = self.logMessage('put ' + path + ' ' + name + ' ' + value + ' ' + r +'\n')
-        if temp == True:
-            return r
-        else:
-            print "Error saving to file"
+        try:
+            r = self.hkvs.put(path,name,value)
+            print path, name, value, r
+            temp = self.logMessage('put ' + path + ' ' + name + ' ' + value + ' ' + r +'\n')
+            if temp == True:
+                return r
+            else:
+                print "Error saving to file"
+        except:
+            print "Error doing op PUT"
 
     def cas(self,path, name, cur_val, new_val):
-        r = self.hkvs.put(path,name,cur_val,new_val)
-        temp = self.logMessage('cas ' + path + ' ' + name + ' ' + cur_val + ' ' + new_val + ' ' +r +'\n')
+        r = self.hkvs.cas(path,name,cur_val,new_val)
+        temp = self.logMessage('cas ' + path + ' ' + name + ' ' + cur_val + ' ' + new_val + ' ' + r +'\n')
         if temp == True:
             return r
         else:
@@ -89,10 +90,10 @@ class DurableHKVS:
             print "Error saving to file"
 
     def get(self, path):
-        return self.hkvs.get()
+        return self.hkvs.get(path)
 
     def list(self, path):
-        return self.hkvs.list()
+        return self.hkvs.list(path)
 
     #cria um checkpoint e faz reset ao logfile e ao contador de escrita do logfile
     def ckptCreation(self):

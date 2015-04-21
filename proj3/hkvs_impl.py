@@ -49,8 +49,11 @@ class HKVS:
             else:
                 return "NOK"
         if temproot.has_key(name):
-            if type(temproot[name]) == dict:
+            if type(temproot[name]) == type({}):
                 return "NOK"
+            else:
+                temproot[name] = value
+                return "OK"
         else:
             temproot[name] = value
             return "OK"
@@ -124,6 +127,7 @@ class HKVS:
     def get(self, path):
 
         elems = path.split("/")
+
         while '' in elems:
             elems.remove('')
         temproot = self.root
