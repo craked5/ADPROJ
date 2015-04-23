@@ -30,7 +30,6 @@ def recvall(s, size):
         frag = s.recv(1024)
         size -= sys.getsizeof(frag)
         msg += frag
-        print msg
     return msg
 
 try:
@@ -42,23 +41,30 @@ try:
 
                 sslconn_sock = ssl.wrap_socket(conn_sock, server_side = True,
                 ssl_version = ssl.PROTOCOL_TLSv1, cert_reqs = ssl.CERT_REQUIRED,
-                ca_certs = '/Users/nunosilva/Desktop/adcerts/ca.pem', keyfile = '/Users/nunosilva/Desktop/adcerts/server.key', certfile = '/Users/nunosilva/Desktop/adcerts/server.pem')
+                ca_certs = '/server/ca.pem',
+                keyfile = '/server/server.key',
+                certfile = '/server/server.pem')
 
                 print 'Connected to %s', addr
                 SocketList.append(sslconn_sock)
             else:
                 rec_size=sckt.recv(512)
-                tamanho=int(p.loads(rec_size))
-                sckt.sendall(p.dumps("SIZE_CONFIRMED",-1))
-                msg=recvall(sckt,tamanho)
-
-                if tamanho == sys.getsizeof(msg):
-                    temp = skel_enviar.processMessage(msg)
-                    sckt.sendall(temp)
-                else:
+                if rec_size == '':
                     sckt.close()
                     SocketList.remove(sckt)
-                    print 'Client closed the connection'
+                    print 'Client closed the connection ' + '%s', addr
+                else:
+                    tamanho=int(p.loads(rec_size))
+                    sckt.sendall(p.dumps("SIZE_CONFIRMED",-1))
+                    msg=recvall(sckt,tamanho)
+
+                    if tamanho == sys.getsizeof(msg):
+                        temp = skel_enviar.processMessage(msg)
+                        sckt.sendall(temp)
+                    else:
+                        sckt.close()
+                        SocketList.remove(sckt)
+                        print 'SIze is not equal'
 except KeyboardInterrupt:
     print "Interrupted by the user"
 sock.close()

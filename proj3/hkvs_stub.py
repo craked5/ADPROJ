@@ -20,13 +20,15 @@ class remoteHKVS:
 
         self.sslconn_sock = ssl.wrap_socket(self.conn_sock,
         ssl_version = ssl.PROTOCOL_TLSv1, cert_reqs = ssl.CERT_REQUIRED,
-        ca_certs = '/Users/nunosilva/Desktop/adcerts/ca.pem', keyfile = '/Users/nunosilva/Desktop/adcerts/client.key', certfile = '/Users/nunosilva/Desktop/adcerts/client.pem')
+        ca_certs = '/server/ca.pem',
+        keyfile = '/client/client.key',
+        certfile = '/client/client.pem')
 
     def disconnect(self):
         self.sslconn_sock.close()
 
     def receber(self):
-        msg = self.sslconn_sock.recv(1024)
+        msg = self.sslconn_sock.recv(2048)
         msg_unp = pickle.loads(msg)
         return msg_unp
 
@@ -71,3 +73,20 @@ class remoteHKVS:
         mensagem[0] = '60'
         self.enviar(mensagem)
         return self.receber()
+
+    def auth(self,mensagem):
+        mensagem[0] = '70'
+        req_name = mensagem[1]
+        req = open(req_name,'r')
+        req_data = req.read()
+        mensagem[1] = req_data
+        self.enviar(mensagem)
+        pem_client2_data = self.receber()
+        try:
+            pem_name = req_name.replace('.req','.pem')
+            pem_client2 = open(pem_name,'w')
+            pem_client2.write(pem_client2_data[1])
+            return "OK"
+        except:
+            print "NOK"
+

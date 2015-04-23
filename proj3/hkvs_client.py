@@ -18,8 +18,7 @@ lista = []
 
 try:
     while True:
-
-        lista_keywords = ['create','put','cas','remove','get','list','exit']
+        lista_keywords = ['create','put','cas','remove','get','list','exit','auth']
         temp = raw_input()
         lista = temp.split(' ')
 
@@ -39,7 +38,9 @@ try:
                 ret = a.get(lista)
             elif lista[0] == 'list':
                 ret = a.list(lista)
-            print ret[1]
+            elif lista[0] == 'auth':
+                ret = a.auth(lista)
+            print ret
         else:
             print "Command Unknown, please type a valid command"
 except KeyboardInterrupt:

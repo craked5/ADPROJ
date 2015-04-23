@@ -15,43 +15,25 @@ class DurableHKVS:
         self.cont = 0
         self.max_count = max_count
         try:
-            self.f = open('/Users/nunosilva/Desktop/trabalhopython/dhkvs-log.txt', 'a')
+            self.f = open('dhkvs-log.txt', 'a')
         except IOError:
             print "Error opening the log file"
 
         #se existir of ficheiro dhkvs-ckpt-tmp.p e se sim recupera a hkvs-temp
-        if os.path.isfile('/Users/nunosilva/Desktop/trabalhopython/dhkvs-ckpt-tmp.p') is True:
-            self.hkvs = self.checkpointToHkvs('/Users/nunosilva/Desktop/trabalhopython/dhkvs-ckpt-tmp.p')
+        if os.path.isfile('dhkvs-ckpt-tmp.p') is True:
+            self.hkvs = self.checkpointToHkvs('dhkvs-ckpt-tmp.p')
             self.f.truncate(0)
-            os.rename('/Users/nunosilva/Desktop/trabalhopython/dhkvs-ckpt-tmp.p', '/Users/nunosilva/Desktop/trabalhopython/dhkvs-ckpt.p')
+            os.rename('dhkvs-ckpt-tmp.p', 'dhkvs-ckpt.p')
         #se nao existir dhkvs-ckpt-tmp.p
-        elif os.path.isfile('/Users/nunosilva/Desktop/trabalhopython/dhkvs-ckpt-temp.p') is False:
+        elif os.path.isfile('dhkvs-ckpt-temp.p') is False:
             #ve se existe o dhkvs-ckpt.p e se sim recupera a hkvs e recupera o log file
-            if os.path.isfile('/Users/nunosilva/Desktop/trabalhopython/dhkvs-ckpt.p') is True:
-                self.hkvs = self.checkpointToHkvs('/Users/nunosilva/Desktop/trabalhopython/dhkvs-ckpt.p')
+            if os.path.isfile('dhkvs-ckpt.p') is True:
+                self.hkvs = self.checkpointToHkvs('dhkvs-ckpt.p')
                 self.logFileRecover()
             #se nao instancia uma hkvs nova e recupera o logfile
             else:
                 self.hkvs = HKVS()
                 self.logFileRecover()
-
-    #ve se o contador de escrita do log esta igual ao maximo:
-        #se sim chama o ckptCreation() para fazer reset e guardar tudo
-        #se nao escreve uma linha para o log com a operacao certa
-    def logMessage(self,comando):
-        if self.cont == self.max_count:
-            try:
-                self.ckptCreation()
-            except IOError:
-                print "Error writing to file"
-        try:
-            self.f.write(comando)
-            self.f.flush()
-            os.fsync(self.f.fileno())
-            self.cont += 1
-        except IOError:
-            return False
-        return True
 
     def create(self, path, name):
         r = self.hkvs.create(path,name)
@@ -64,7 +46,6 @@ class DurableHKVS:
     def put(self, path, name, value):
         try:
             r = self.hkvs.put(path,name,value)
-            print path, name, value, r
             temp = self.logMessage('put ' + path + ' ' + name + ' ' + value + ' ' + r +'\n')
             if temp == True:
                 return r
@@ -95,23 +76,43 @@ class DurableHKVS:
     def list(self, path):
         return self.hkvs.list(path)
 
+    #-----------------------------------------FUNCOES AUXILIARES--------------------------------------------------
+
+
+    #ve se o contador de escrita do log esta igual ao maximo:
+        #se sim chama o ckptCreation() para fazer reset e guardar tudo
+        #se nao escreve uma linha para o log com a operacao certa
+    def logMessage(self,comando):
+        if self.cont == self.max_count:
+            try:
+                self.ckptCreation()
+            except IOError:
+                print "Error writing to file"
+        try:
+            self.f.write(comando)
+            self.f.flush()
+            os.fsync(self.f.fileno())
+            self.cont += 1
+        except IOError:
+            return False
+        return True
+
     #cria um checkpoint e faz reset ao logfile e ao contador de escrita do logfile
     def ckptCreation(self):
-        check = open('/Users/nunosilva/Desktop/trabalhopython/dhkvs-ckpt-tmp.p', 'a')
+        check = open('dhkvs-ckpt-tmp.p', 'a')
         p.dump(self.hkvs,check,-1)
         check.flush()
         os.fsync(check.fileno())
         check.close()
         self.f.truncate(0)
-        os.rename('/Users/nunosilva/Desktop/trabalhopython/dhkvs-ckpt-tmp.p', '/Users/nunosilva/Desktop/trabalhopython/dhkvs-ckpt.p')
+        os.rename('dhkvs-ckpt-tmp.p', 'dhkvs-ckpt.p')
         self.cont = 0
 
     #faz o recuperamento do log para a nova instancia do servidor
     def logFileRecover(self):
         lista_keywords = ['create','put','cas','remove','get','list']
-
         try:
-            file_temp = open('/Users/nunosilva/Desktop/trabalhopython/dhkvs-log.txt', 'r')
+            file_temp = open('dhkvs-log.txt', 'r')
         except IOError:
             print "Error opening the log file in function logFileRecover"
 
