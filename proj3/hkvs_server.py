@@ -41,9 +41,9 @@ try:
 
                 sslconn_sock = ssl.wrap_socket(conn_sock, server_side = True,
                 ssl_version = ssl.PROTOCOL_TLSv1, cert_reqs = ssl.CERT_REQUIRED,
-                ca_certs = '/server/ca.pem',
-                keyfile = '/server/server.key',
-                certfile = '/server/server.pem')
+                ca_certs = 'ca.pem',
+                keyfile = 'server.key',
+                certfile = 'server.pem')
 
                 print 'Connected to %s', addr
                 SocketList.append(sslconn_sock)
