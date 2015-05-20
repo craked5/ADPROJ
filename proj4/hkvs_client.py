@@ -1,24 +1,32 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 __author__ = 'grupo043'
-__author__ = 'nunosilva 44285'
-__author__ = 'andrepeniche 44312'
+__author__ = 'Nuno Silva 44285'
+__author__ = 'Andre Peniche 44312'
 
 import sys
 
-from hkvs_stub import remoteHKVS
+from hkvs_stub import stubHKVS
 
-
-HOST = sys.argv[1]
-PORT = int (sys.argv[2])
-a = remoteHKVS()
+ret_connect = 0
+a = stubHKVS()
 ret = 0
-a.connect(HOST,PORT)
 lista = []
+count_conns = 0
+lista_keywords = ['create','put','cas','remove','get','list','exit','auth']
+list_servers = sys.argv
+list_servers = list_servers.split(' ')
+
+while count_conns is not 2:
+    for adrs in list_servers:
+        adrs_temp = adrs.split(':')
+        ret_connect = a.connect(adrs_temp[0],adrs_temp[1])
+        if ret_connect != 0:
+            break
+    count_conns += 1
 
 try:
     while True:
-        lista_keywords = ['create','put','cas','remove','get','list','exit','auth']
         temp = raw_input()
         lista = temp.split(' ')
 
