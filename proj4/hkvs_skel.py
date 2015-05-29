@@ -121,6 +121,7 @@ class Skeleton:
         msg_pronta_enviar = p.dumps(ret,-1)
         return msg_pronta_enviar
 
+    #função para mandar a OP que se pretende executar a um backup
     def sendtobackup(self,ip,msg):
         back_sock = s.socket(s.AF_INET, s.SOCK_STREAM)
         temp_ip = ip.split(':')
@@ -130,7 +131,7 @@ class Skeleton:
             return 0
         sslback_sock = ssl.wrap_socket(back_sock,
         ssl_version = ssl.PROTOCOL_TLSv1, cert_reqs = ssl.CERT_REQUIRED,
-        ca_certs = '../ca.pem',
+        ca_certs = 'ca.pem',
         keyfile = 'client.key',
         certfile = 'client.pem')
 

@@ -22,7 +22,7 @@ class stubHKVS:
             return 0
         self.sslconn_sock = ssl.wrap_socket(self.conn_sock,
         ssl_version = ssl.PROTOCOL_TLSv1, cert_reqs = ssl.CERT_REQUIRED,
-        ca_certs = '../ca.pem',
+        ca_certs = '..server/ca.pem',
         keyfile = 'client.key',
         certfile = 'client.pem')
 
